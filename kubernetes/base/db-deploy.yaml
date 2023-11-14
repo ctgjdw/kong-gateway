@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kong-db
+spec:
+  selector:
+    matchLabels:
+      app: kong
+  serviceName: kong-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kong-db
+    spec:
+      containers:
+      - name: kong
+        image: postgres:13
+        ports:
+        - containerPort: 5432
+          name: db-port
+        envFrom:
+        - secretRef:
+            name: kong-db-secrets
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: kong-db
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: kong-db
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+

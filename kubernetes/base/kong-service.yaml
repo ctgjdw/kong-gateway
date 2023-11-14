@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-db
+spec:
+  clusterIP: none
+  selector:
+    app: kong
+  ports:
+  - port: 5432
+    targetPort: db-port
+    name: db-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong
+spec:
+  selector:
+    app: kong
+  ports:
+  - port: 8000
+    name: http-ingress
+    targetPort: http-ingress
+  - port: 8443
+    name: https-ingress
+    targetPort: https-ingress
+  - port: 8001
+    name: http-kong-api
+    targetPort: http-kong-api
+  - port: 8444
+    name: https-kong-api
+    targetPort: https-kong-api
+  - port: 8002
+    name: http-kong-ui
+    targetPort: http-kong-ui
+  - port: 8445
+    name: https-kong-ui
+    targetPort: https-kong-ui
+

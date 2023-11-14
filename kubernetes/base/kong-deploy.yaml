@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong
+spec:
+  selector:
+    matchLabels:
+      app: kong
+  template:
+    metadata:
+      labels:
+        app: kong
+    spec:
+      initContainers:
+      - name: kong-db-init
+        image: kong/kong-gateway:3.5.0.0
+        command:
+        - kong
+        - migrations
+        - bootstrap
+        envFrom:
+        - secretRef:
+            name: kong-secret
+        - configMapRef:
+            name: kong-config
+      containers:
+      - name: kong
+        image: kong/kong-gateway:3.5.0.0
+        envFrom:
+        - secretRef:
+            name: kong-secret
+        - configMapRef:
+            name: kong-config
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8000
+          name: http-ingress
+        - containerPort: 8443
+          name: https-ingress
+        - containerPort: 8001
+          name: http-kong-api
+        - containerPort: 8444
+          name: https-kong-api
+        - containerPort: 8002
+          name: http-kong-ui
+        - containerPort: 8445
+          name: https-kong-ui
